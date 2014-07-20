@@ -30,9 +30,18 @@ public class GasStationImpl implements GasStation{
 	private int numberOfCancellationsNoGas;
 	private int numberOfCancellationsTooExpensive;
 	private int numberOfSales;
+	private static boolean testMode = false;
 	
 	
-	//looks for the pump with the lowest difference from needed to available fuel
+	public static boolean isTestMode() {
+		return testMode;
+	}
+
+	public static void setTestMode(boolean testMode) {
+		GasStationImpl.testMode = testMode;
+	}
+
+	//looks for a suitable pump with the lowest difference between needed and available fuel
 	private GasPump getFittingPump(double amountNeeded, GasType gastypeNeeded) throws NotEnoughGasException 
 	{
 		double amountDifference = Double.MAX_VALUE;
@@ -86,12 +95,20 @@ public class GasStationImpl implements GasStation{
 		
 		GasPump gp = getFittingPump(amountInLiters, type);
 		
-		this.numberOfSales++;
-		this.revenue += amountInLiters * this.getPrice(type);
-		gp.pumpGas(amountInLiters);
+		synchronized(gp)
+		{
+			gp.pumpGas(amountInLiters);
+		}
 		
-		return amountInLiters * this.getPrice(type);
+		synchronized(this)
+		{
+			this.numberOfSales++;
+			this.revenue += amountInLiters * this.getPrice(type);
+			if (testMode) System.out.println("Revenue: " + (Double.toString(this.getRevenue()))); //output for test
+			return amountInLiters * this.getPrice(type);
+		}
 	}
+	
 
 	public double getRevenue() {
 		return this.revenue;

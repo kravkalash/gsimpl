@@ -28,6 +28,8 @@ public class GasStationImplTest extends GasStationImpl {
         keks.buyGas(GasType.DIESEL, 50.0, 2.0);
         
         assertEquals(70.0, keks.getRevenue(), 0.00001);
+        keks.buyGas(GasType.DIESEL, 50.0, 2.0);
+        keks.buyGas(GasType.DIESEL, 50.0, 2.0);
 	}
 
 }
